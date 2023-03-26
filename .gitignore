@@ -1,0 +1,8 @@
+**/.DS_Store
+**/cljs-out
+.idea
+target
+pom.xml
+.rebel_readline_history
+web-mx.iml
+.cpcache

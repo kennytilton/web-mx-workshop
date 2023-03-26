@@ -1,0 +1,157 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+div, h1, input {
+    font-family: HelveticaNeue, Helvetica;
+    color: #444;
+}
+::-webkit-scrollbar {
+  display: none;
+}
+body {
+  overflow: scroll;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* the top page DIV */
+.intro {
+    display:         flex;
+    flex-direction: column;
+    align-items:     center;
+    justify-content: start;
+    gap: 1em;
+    padding: 9px;
+}
+
+.control-panel {
+    display:         flex;
+    flex-direction:  row;
+    align-items:     center;
+    justify-content: start;
+    gap: 1em;
+}
+.lesson {
+  border-color: orange;
+  border-style: solid;
+  border-width: 2px;
+  max-width: 40em;
+  min-width: 40em;
+  margin-top: 9px;
+
+}
+
+.lesson-code {
+    background: LightYellow;
+    padding:    12px;
+    margin:     12px 48px 0 0;
+}
+
+.glossary {
+    display:        flex;
+    flex-direction: row;
+    gap:            6px;
+    margin:         9px 48px 0px 24px;
+}
+
+/* the + button */
+.push-button {
+  background-color: rgba(51, 51, 51, 0.05);
+  border-radius: 16px;
+  border-width: 0;
+  color: #333333;
+  cursor: pointer;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 64px;
+  min-width: 1em;
+  text-align: center;
+}
+
+li:first-child {
+  padding-top: -4px;
+}
+li {
+  padding: 4px;
+}
+.preamble {
+  /*font-family: 'Times Roman', serif;*/
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  max-width: 35em;
+  margin-bottom: 6px;
+}
+
+.exercise {
+  font-family: 'Times Roman', serif;
+  font-size: 18px;
+  background: linen;
+  padding: 1em;
+}
+
+.cat-chat {
+  display: flex;
+  flex-direction: column;
+  font: 24px serif;
+  min-width: 20em;
+  max-width: 20em;
+  min-height: 6em;
+}
+
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.fade-in {
+-webkit-animation: fadein 1.5s ease-out; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: fadein 1.5s ease-out; /* Firefox < 16 */
+        -ms-animation: fadein 1.5s ease-out; /* Internet Explorer */
+         -o-animation: fadein 1.5s ease-out; /* Opera < 12.1 */
+            animation: fadein 1.5s ease-out;
+}
+
+blockquote {
+  background: #f9f9f9;
+  border-left: 5px solid #ff5f1f;
+  font-size: 20px;
+  margin: 0 1em 2em 1em;
+  padding: 1em 20px;
+  quotes: "\201C""\201D""\2018""\2019";
+}
+/* blockquote:before {
+  color: #ccc;
+  content: open-quote;
+  font-size: 4em;
+  line-height: 0.1em;
+  margin-right: 0.25em;
+  vertical-align: -0.4em;
+}*/
+blockquote p {
+  display: inline;
+}
