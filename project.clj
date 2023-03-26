@@ -21,7 +21,7 @@
 
   :aliases {"fig:build" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]
             "fig:min"   ["run" "-m" "figwheel.main" "-O" "advanced" "-bo" "dev"]
-            "fig:test"  ["run" "-m" "figwheel.main" "-co" "test.cljs.edn" "-m" "web-mx-quickstart.test-runner"]}
+            "fig:test"  ["run" "-m" "figwheel.main" "-co" "test.cljs.edn" "-m" "shop.quickstart.test-runner"]}
 
   :profiles {:dev {:dependencies [[org.clojure/clojurescript "1.10.773"]
                                   [com.bhauman/figwheel-main "0.2.18"]

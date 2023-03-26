@@ -2,4 +2,4 @@
   :css-dirs ["resources/public/css"]
   :auto-testing true
    }
-{:main web-mx-quickstart.core}
+{:main shop.quickstart.core}
