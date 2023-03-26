@@ -1,9 +1,7 @@
 (ns ^:figwheel-hooks shop.quickstart.core
   (:require
     [goog.dom :as gdom]
-    [goog.object :as gobj]
     [bide.core :as r]
-    ;[tiltontec.model.core :as md]
     [tiltontec.matrix.api
      :refer [with-mx-trace with-minfo with-minfo-std mx-type md-state
              matrix mpar mget mget? mset! mswap! mset! fasc fmu minfo
@@ -13,138 +11,84 @@
              title img section h1 h2 h3 input footer p a b h4 u table th tr td
              blockquote span i label ul li div button br pre code]]
 
-    [shop.quickstart.core.glossary :as glossary]
+    [shop.quickstart.core.style :as style]
+    [shop.quickstart.core.widget :as w]
     [shop.quickstart.lesson :as lesson]))
 
-(defn quick-start-toolbar []
-  (div {:style {:margin          0
-                ;:background :LightYellow
-                :overflow-y      :scroll
-                :gap             "9px"
-                :display         :flex
-                :flex-direction  :column
-                :align-items     :start
-                :justify-content :start}}
-    {:name :anchor-toolbar}
-    (into []
-      (for [{:keys [menu title route] :as lesson} (mget (fasc :quick-start me :dbg :tbar-get-less) :lessons)]
-        (a {:href     (str "#/" (name route))
-            :selector menu
-            :style    (cF (let [curr-route (mget (fasc :quick-start me :dbg :tbar-get-route) :route)]
-                            (merge
-                              {:min-width       "128px"
-                               :text-decoration :none
-                               :border-width    "2px"
-                               :border-style    :solid
-                               :border-color    "white"
-                               :font-weight     "normal"}
-                              (when (= route curr-route)
-                                {:border-color "orange"
-                                 :font-weight  "bold"}))))
-            :class    :pushbutton}
-          {:name (str "anchor-" route)}
-          (or menu title))))))
+;;; --- user inputs -------------------------------------
+
+(defn- qs-router-starter [lessons]
+  (fn []
+    (r/start! (r/router
+                (into [] (concat [["/" :intro]]
+                           (map (fn [{:keys [route]}]
+                                  [(str "/" (name route)) route])
+                             lessons))))
+      {:default     :ignore
+       :on-navigate (fn [route params query]
+                      (when-let [mtx @matrix]
+                        (mset! mtx :route route)))})))
+
+(defn- qs-keydown-handler []
+  (cF+ [:watch (fn [property-name me new-value old-value cell]
+                 ;; If we thought we would be changing the handler during
+                 ;; the life of the app, we would have to worry about
+                 ;; removing the 'old-value' listener.
+                 (.addEventListener js/document "keydown" new-value))]
+    ;; The astute reader may notice that the fn is decided without
+    ;; reactive consultation with other state. So why is this a formula?
+    ;; In this case, we just want to simulate an object constructor and
+    ;; have this code run at app init time, but with the app instance
+    ;; in view so we can close over the anaphor 'me'.
+    ;;
+    ;; This pseudo-constructor usage is commonplace in W/mx apps.
+    ;;
+    (fn [evt]
+      ;; This formula cell expects to be bound to a property of
+      ;; an object ("me") where lesson data is kept, so there
+      ;; is no need to navigate to the desired data -- just `(mget me ...)`.
+      (let [lessons (mget me :lessons)
+            curr-x (.indexOf lessons
+                     (mget me :selected-lesson))]
+        (when-let [new-x (case (.-key evt)
+                           "Home" 0
+                           "End" (dec (count lessons))
+                           ("ArrowRight" "ArrowDown" "PageDown") (inc curr-x)
+                           ("ArrowLeft" "ArrowUp" "PageUp") (dec curr-x)
+                           nil)]
+          (when (<= 0 new-x (dec (count lessons)))
+            (.stopPropagation evt)
+            (.preventDefault evt)
+            ;; Likewise, "me" is expected to be the app proxy object
+            ;; where routing changes land:
+            (mset! me :route (:route (nth lessons new-x)))))))))
+
+;;; --- the quick-start app beef --------------------------------
 
 (defn quick-start [lesson-title lessons]
-  #_ (h2 {:style (cF {:color :red})} "The speed is now...")
-  (div {:style {:height         "100vh" :margin 0 :padding 0
-                :display        :flex
-                :flex-direction :horizontal}}
+  (div {:style (style/qs-app)}
     {:name            :quick-start
+     ;; next, we wrap the current route in an "input" (cI) cell
+     ;; because the user will be an "outside" source for its values.
      :route           (cI :intro)
-     :router-starter  (fn []
-                        (r/start! (r/router
-                                    (into [] (concat [["/" :intro]]
-                                               (map (fn [{:keys [route]}]
-                                                      [(str "/" (name route)) route])
-                                                 lessons))))
-                          {:default     :ignore
-                           :on-navigate (fn [route params query]
-                                          (when-let [mtx @matrix]
-                                            (mset! mtx :route route)))}))
-     :selected-lesson (cF+ [:debug false]
-                        (let [route (mget me :route)]
-                          (some (fn [lesson]
-                                  (when (= route (:route lesson))
-                                    ;; (prn :selected-lesson-checks-lesson (:route lesson) lesson)
-                                    lesson)) lessons)))
-     :keydowner       (cF+ [:watch (fn [_ me new _ _]
-                                     (.addEventListener js/document "keydown" new))]
-                        (fn [evt]
-                          (let [lessons (mget me :lessons)
-                                lesson (mget me :selected-lesson)
-                                curr-x (.indexOf lessons lesson)]
-                            (when-let [new-x (case (.-key evt)
-                                               "Home" 0
-                                               "End" (dec (count lessons))
-                                               ("ArrowRight" "ArrowDown" "PageDown") (inc curr-x)
-                                               ("ArrowLeft" "ArrowUp" "PageUp") (dec curr-x)
-                                               nil)]
-                              (when (<= 0 new-x (dec (count lessons)))
-                                (.stopPropagation evt)
-                                (.preventDefault evt)
-                                (mset! me :route (:route (nth lessons new-x))))))))
+     :router-starter  (qs-router-starter lessons)
+     :selected-lesson (cF (some #(when (= (mget me :route) (:route %)) %)
+                            lessons))
+     :keydowner       (qs-keydown-handler)
      :lessons         lessons
      :show-glossary?  (cI false)}
 
-    (div {:style {:display         :flex
-                  :flex-direction  :column
-                  :height          "100%"
-                  :margin          0
-                  :padding         0
-                  :min-width       "180px"
-                  :align-items     :center
-                  :justify-content :start
-                  :gap             "1em"
-                  :border-right    "4mm ridge orange"       ;; "rgba(211, 220, 50, .6)"
-                  }}
-      {:name :qs-dash}
+    (div {:style (style/qs-dash)}
       (span {:style {:font-size  "24px"
                      :padding    "18px"
                      :text-align :center}}
         lesson-title)
       (span "use <- or -> keys<br>&nbsp;")
-      (quick-start-toolbar))
+      (w/quick-start-toolbar))
 
-    (let [qstart me]
-      (div
-        (when-let [lesson (mget qstart #_(fasc :quick-start me :me? true :dbg :sanity) :selected-lesson)]
-          (div {:class :fade-in                             ;
-                :style {:display        :flex
-                        :overflow-y     :auto
-                        :flex-direction :column
-                        :padding        "4em"
-                        :height         "100%"}}
-            {:name :lesson}
-            (h2 (:title lesson))
-            (when-let [preamble (:preamble lesson)]
-              (if (string? preamble)
-                (blockquote {:class :preamble} preamble)
-                (doall (for [elt preamble]
-                         (p {:class :preamble} elt)))))
-
-            (div {:class :lesson}
-              ((:builder lesson)))
-
-            (pre {:class :lesson-code}
-              (code {:style {:font-size "14px"}}
-                (:code lesson)))
-
-            (div {:class :glossary}
-              {:name :glossary}
-              (span {:class   :pushbutton
-                     :onclick #(mswap! qstart :show-glossary? not)}
-                (if (mget qstart :show-glossary?)
-                  "Hide Glossary" "Show Glossary"))
-              (div {:style (cF (str "display:" (if (mget qstart :show-glossary?)
-                                                 "block" "none")))}
-                (glossary/matrix-glossary)))
-
-            (when-let [c (:comment lesson)]
-              (if (string? c)
-                (p {:class :preamble} c)
-                (doall (for [cx c]
-                         (p {:class :preamble} cx)))))))))))
+    (div
+      (when-let [lesson (mget (fasc :quick-start me :me? true :dbg :sanity) :selected-lesson)]
+        (w/lesson-display lesson)))))
 
 (defn main [mx-builder]
   (println "[main]: loading app")
@@ -160,24 +104,10 @@
     (when-let [router-starter (mget? app-matrix :router-starter)]
       (router-starter))))
 
-(def lessons [lesson/ex-tl-dr
-              lesson/ex-just-html
-              lesson/ex-and-cljs
-              lesson/ex-html-composition
-              lesson/ex-custom-state
-              lesson/ex-derived-state
-              lesson/ex-navigation
-              lesson/ex-handler-mutation
-              lesson/ex-watches
-              lesson/ex-watch-cc
-              lesson/ex-async-cat
-              lesson/ex-data-integrity
-              lesson/ex-in-review])
-
-(main #(quick-start "Web/MX&trade;<br>Quick Start" lessons))
+(main #(quick-start "Web/MX&trade;<br>Quick Start"
+         (lesson/qs-lessons)))
 
 ;
-;;; specify reload hook with ^:after-load metadata
 ;(defn ^:after-load on-reload []
 ;  ;; optionally touch your app-state to force rerendering depending on
 ;  ;; your application

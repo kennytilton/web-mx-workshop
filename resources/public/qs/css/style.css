@@ -1,0 +1,86 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+div, h1, input {
+    font-family: HelveticaNeue, Helvetica;
+    color: #444;
+}
+::-webkit-scrollbar {
+  display: none;
+}
+body {
+  overflow: scroll;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+li:first-child {
+  padding-top: -4px;
+}
+li {
+  padding: 4px;
+}
+
+.exercise {
+  font-family: 'Times Roman', serif;
+  font-size: 18px;
+  background: linen;
+  padding: 1em;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes fadein {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.fade-in {
+-webkit-animation: fadein 1.5s ease-out; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: fadein 1.5s ease-out; /* Firefox < 16 */
+        -ms-animation: fadein 1.5s ease-out; /* Internet Explorer */
+         -o-animation: fadein 1.5s ease-out; /* Opera < 12.1 */
+            animation: fadein 1.5s ease-out;
+}
+
+/* the counter display */
+@font-face{
+ font-family:'digital-clock-font';
+ src: url('../font/digital-7 (mono italic).ttf');
+}
+
+.heavychar {
+  stroke: black;
+  fill: black;
+  font: bold 48px sans-serif;
+  user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+blockquote p {
+  display: inline;
+}

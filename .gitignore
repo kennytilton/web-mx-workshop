@@ -6,3 +6,4 @@ pom.xml
 .rebel_readline_history
 web-mx.iml
 .cpcache
+**/.nrepl-port

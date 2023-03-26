@@ -32,6 +32,7 @@ body {
     justify-content: start;
     gap: 1em;
 }
+
 .lesson {
   border-color: orange;
   border-style: solid;

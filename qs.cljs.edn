@@ -1,5 +1,7 @@
 ^{:watch-dirs ["test" "src"]
-  :css-dirs ["resources/public/css"]
+  :open-url "http://localhost:[[server-port]]/qs/index.html"
+  :css-dirs ["resources/public/qs/css"]
   :auto-testing true
    }
 {:main shop.quickstart.core}
+

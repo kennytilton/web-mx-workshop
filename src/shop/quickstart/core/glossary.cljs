@@ -1,8 +1,13 @@
 (ns shop.quickstart.core.glossary
   (:require
+    [tiltontec.matrix.api
+     :refer [with-mx-trace with-minfo with-minfo-std mx-type md-state
+             matrix mpar mget mget? mset! mswap! mset! fasc fmu minfo
+             cinfo cF cF+ cFn cFonce cI cf-freeze] :as mxapi]
     [tiltontec.web-mx.api
      :refer [title img section h1 h2 h3 input footer p a b h4 u table th tr td
-             blockquote span i label ul li div button br pre code]]))
+             blockquote span i label ul li div button br pre code]]
+    [shop.quickstart.core.style :as style]))
 
 (defn matrix-glossary []
   (table
@@ -68,3 +73,23 @@
         "Several varieties of laziness: :always, :once-asked, :until-asked."]
        ])
     ))
+
+(defn glossary []
+  (div {:style {:display "flex",
+                :flex-direction "row",
+                :gap "6px",
+                :margin "9px 48px 0px 24px"}
+        }
+    (let [qstart (fasc :quick-start me)]
+      ;; w/mx code looks slick because the tag macros hide the parent-child
+      ;; thing, but the macros work by treating everything after the two optional
+      ;; attribute maps as & rest children. Once we have a LET, that form
+      ;; looks like the only child, so we need an explicit vector. Otherwise, only
+      ;; the last form in the LET gets seen.
+      [(span {:style   (style/pushbutton)
+              :onclick #(mswap! qstart :show-glossary? not)}
+         (if (mget qstart :show-glossary?)
+           "Hide Glossary" "Show Glossary"))
+       (div {:style (cF (str "display:" (if (mget qstart :show-glossary?)
+                                          "block" "none")))}
+         (matrix-glossary))])))
