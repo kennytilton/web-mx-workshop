@@ -12,43 +12,67 @@
              blockquote span i label ul li div button br pre code] :as wmx]))
 
 ;;; step #3: primitive, recursive MX node display
-(defn mxi-md-view [md depth]
-  (when (pos? depth)
-    (cond
-      (string? md) (span md)
-      (md-ref? md) (do
-                     (div {}
-                       {:md md}
-                       (span (mget? md :name
-                               (mget? md :tag "noname")))
-                       ;; ^^^ no tag should not occur, wmx builds that in
-                       (div {:style {:padding-left "1em"}} {}
-                         (mapv #(mxi-md-view % (dec depth)) (mget? md :kids)))))
-      :else (span "not string or md"))))
+
+
+
+(defn mxi-md-view [md]
+  (cond
+    (string? md) (span md)
+    (md-ref? md) (do
+                   (div
+                     {:onclick
+                      ;; the easiest way to connect an event back to this DIV
+                      ;; is to spawn the callback in a formula, and close over "me":
+                      #_(cF (fn [e]
+                              (let [ck (evt-md e)]
+                                (.stopPropagation e)
+                                (mswap! me :expanded? not))))
+                      ;; a second way is to ask w/mx which model is connected to
+                      ;; the event, then navigate up to the name :md-view, inclusively
+                      ;; in case :md-view itself was clicked.
+                      #(let [mdv (fasc :md-view (evt-md %) :me? true)]
+                         (.stopPropagation %)
+                         (mswap! mdv :expanded? not))
+
+                      :style (cF (when (mget me :expanded?)
+                                   {:color :red}))}
+                     {:name      :md-view
+                      :md        md
+                      :expanded? (cI false)}
+                     (span {:style {:user-select :none}}
+                       (mget? md :name
+                             (mget? md :tag "noname")))
+                     ;; ^^^ no tag should not occur, wmx builds that in
+                     (div {:style {:padding-left "1em"}} {}
+                       (when (mget (fasc :md-view me) :expanded?)
+                         (mapv #(mxi-md-view %) (mget? md :kids))))))
+    :else (span "not string or md")))
 
 ;;; step #4: complete lifecycle with "close" control
 (defn inspector-toolbar []
-  (div {:style {:justify-content :space-between
-                :margin "2em"
-                :gap "1em"
-                :display :flex}}
+  (div {:style {:display         :flex
+                :justify-content :space-between
+                :margin          "2em"
+                :gap             "1em"}}
     (span "inspector toolbar")
-    (span {:onclick (fn [evt]
-                      ; todo break this out as inspector-uninstall then make keychord a toggle
-                      (let [mxi (fasc :mxi (evt-md evt))
-                            dom (gdom/getElement "inspector")]
-                        (md-quiesce mxi)
-                        (set! (.-innerHTML dom) nil)))}
+    (button {:cursor  :pointer
+             :onclick (fn [evt]
+                        ; todo break this out as inspector-uninstall then make keychord a toggle
+                        (let [mxi (fasc :mxi (evt-md evt))
+                              dom (gdom/getElement "inspector")]
+                          (md-quiesce mxi)
+                          (set! (.-innerHTML dom) nil)))}
       ;; todo find a nice "close" icon?
-      "[X]")))
+      "X")))
 
 ;;; step #3: build an inspector
 (defn inspector-mx [mx]
-  (div {}
+  (div {:style {:background :linen
+                :padding "1em"}}
     {:name   :mxi
      :target mx}
     (inspector-toolbar)
-    (mxi-md-view mx 3)))
+    (mxi-md-view mx)))
 
 ;;; step #1: see shop.quickstart.core:47 for option-cmd-X keychord recognition
 ;;; step #2: explicit DOM manipulation to get inspector installed

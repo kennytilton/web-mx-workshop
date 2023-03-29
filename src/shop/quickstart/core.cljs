@@ -91,7 +91,7 @@
       (when-let [lesson (mget (fasc :quick-start me :me? true :dbg :sanity) :selected-lesson)]
         (w/lesson-display lesson)))))
 
-(defn main [mx-builder]
+(defn main [mx-builder & [and-then]]
   (let [app (gdom/getElement "app")
         app-matrix (mx-builder)
         app-dom (tag-dom-create app-matrix)]
@@ -100,10 +100,14 @@
     (gdom/appendChild app app-dom)
 
     (when-let [router-starter (mget? app-matrix :router-starter)]
-      (router-starter))))
+      (router-starter))
+
+    (when and-then
+      (and-then))))
 
 (main #(quick-start "Web/MX&trade;<br>Quick Start"
-         (lesson/qs-lessons)))
+         (lesson/qs-lessons))
+  i/inspector-install)
 
 ;
 ;(defn ^:after-load on-reload []

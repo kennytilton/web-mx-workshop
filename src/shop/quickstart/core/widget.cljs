@@ -38,7 +38,7 @@
                               (when (= route curr-route)
                                 {:border-color "orange"
                                  :font-weight  "bold"}))))}
-          {:name (str "anchor-" route)}
+          {:name (str "anchor-" (name route))}
           (or menu title))))))
 
 (defn lesson-display [lesson]

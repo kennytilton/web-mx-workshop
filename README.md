@@ -1,6 +1,8 @@
-# web-mx-quickstart
+# Web/MX&trade; Workshop
 
-An interactive TL;DR dog fed highlight film for [Web/MX&trade;](https://github.com/kennytilton/web-mx#readme), where further documentation and examples will be found.
+A home for the pedagogically-minded evolution of neat Web/MX apps.
+
+Please check our nascent Wiki pages for more, including our inaugural project, a Web/MX inspector utility.
 
 ## Development
 
