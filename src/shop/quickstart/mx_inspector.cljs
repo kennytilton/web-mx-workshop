@@ -67,7 +67,11 @@
 
 (defn mxi-md-view-rich [md]
   (div
-    {:onclick (mxi-md-view-on-click md)}
+    {:onclick (mxi-md-view-on-click md)
+     :ondblclick (fn [e]
+                   (.stopPropagation e)
+                   (let [me (evt-md e)]
+                     (mset! (fasc :mxi me) :target md)))}
     {:name        :md-view
      :md          md
      :show-props? (cI false)
@@ -114,21 +118,19 @@
 (defn inspector-mx [mx]
   (div {:style {:background :linen}}
     {:name   :mxi
-     :target mx}
+     :target (cI mx)}
     (inspector-toolbar)
     (ul
       (li (i "click to show/hide children"))
       (li (i "option click to show/hide properties")))
     (div {:style {:padding "0 12px 12px 12px"}}
-      (mxi-md-view mx))))
+      (mxi-md-view (mget (fasc :mxi me) :target)))))
+
 
 (defn inspector-install []
   (let [ins (gdom/getElement "inspector")]
     (set! (.-innerHTML ins) nil)
     (gdom/appendChild ins
       (tag-dom-create
-        ;; we continue cheating and grab the target MX from a global atom.
-        ;; Eventually we will want sth less brittle here, so the `matrix` global
-        ;; need not be populated.
         (inspector-mx @matrix)))))
 
